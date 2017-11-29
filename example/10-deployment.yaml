@@ -40,7 +40,7 @@ spec:
               mountPath: /target
       containers:
         - name: ark
-          image: gcr.io/andy-heptio/ark:master
+          image: gcr.io/heptio-images/ark:master
           imagePullPolicy: IfNotPresent
           command:
             - /ark

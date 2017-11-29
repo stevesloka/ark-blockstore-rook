@@ -16,7 +16,7 @@
 apiVersion: v1
 kind: Namespace
 metadata:
-  name: nginx2
+  name: nginx-example
   labels:
     app: nginx
 
@@ -25,7 +25,7 @@ kind: PersistentVolumeClaim
 apiVersion: v1
 metadata:
   name: nginx-logs
-  namespace: nginx2
+  namespace: nginx-example
   labels:
     app: nginx
 spec:
@@ -41,7 +41,7 @@ apiVersion: apps/v1beta1
 kind: Deployment
 metadata:
   name: nginx-deployment
-  namespace: nginx2
+  namespace: nginx-example
 spec:
   replicas: 1
   template:
@@ -70,7 +70,7 @@ metadata:
   labels:
     app: nginx
   name: my-nginx
-  namespace: nginx2
+  namespace: nginx-example
 spec:
   ports:
   - port: 80
