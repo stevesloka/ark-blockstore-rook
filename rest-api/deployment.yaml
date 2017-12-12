@@ -13,7 +13,7 @@ spec:
       dnsPolicy: ClusterFirstWithHostNet
       containers:
       - name: rook-rest-api
-        image: stevesloka/rook-api
+        image: stevesloka/rook-api:0.0.1
         imagePullPolicy: IfNotPresent
         env:
           - name: ROOK_ADMIN_SECRET

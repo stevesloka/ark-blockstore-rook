@@ -29,7 +29,7 @@ spec:
       serviceAccountName: ark
       initContainers:
         - name: rook-blockstore
-          image: stevesloka/ark-blockstore-rook:latest
+          image: stevesloka/ark-blockstore-rook:0.0.1
           imagePullPolicy: Always
           command:
             - sh
