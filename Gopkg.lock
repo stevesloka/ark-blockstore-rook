@@ -170,11 +170,10 @@
   revision = "f5742cb6b85602e7fa834e9d5d91a7d7fa850824"
 
 [[projects]]
-  branch = "support-custom-snapshots"
   name = "github.com/heptio/ark"
   packages = ["pkg/apis/ark/v1","pkg/backup","pkg/buildinfo","pkg/client","pkg/cloudprovider","pkg/discovery","pkg/generated/clientset/versioned","pkg/generated/clientset/versioned/scheme","pkg/generated/clientset/versioned/typed/ark/v1","pkg/plugin","pkg/plugin/generated","pkg/restore","pkg/util/boolptr","pkg/util/collections","pkg/util/kube","pkg/util/logging","third_party/kubernetes/pkg/kubectl/cmd/util"]
-  revision = "a390a2bdc3593e5dd44bcedfe85764ffe9c4818c"
-  source = "https://github.com/ncdc/ark.git"
+  revision = "632c90bd081b6b99c006c836aee1d6689078e0e2"
+  version = "v0.6.0"
 
 [[projects]]
   branch = "master"
@@ -321,7 +320,7 @@
 
 [[projects]]
   name = "k8s.io/client-go"
-  packages = ["discovery","dynamic","kubernetes/scheme","kubernetes/typed/core/v1","pkg/version","plugin/pkg/client/auth/azure","plugin/pkg/client/auth/gcp","plugin/pkg/client/auth/oidc","rest","rest/watch","third_party/forked/golang/template","tools/auth","tools/clientcmd","tools/clientcmd/api","tools/clientcmd/api/latest","tools/clientcmd/api/v1","tools/metrics","tools/reference","tools/remotecommand","transport","transport/spdy","util/cert","util/exec","util/flowcontrol","util/homedir","util/integer","util/jsonpath"]
+  packages = ["discovery","dynamic","kubernetes","kubernetes/scheme","kubernetes/typed/admissionregistration/v1alpha1","kubernetes/typed/apps/v1beta1","kubernetes/typed/apps/v1beta2","kubernetes/typed/authentication/v1","kubernetes/typed/authentication/v1beta1","kubernetes/typed/authorization/v1","kubernetes/typed/authorization/v1beta1","kubernetes/typed/autoscaling/v1","kubernetes/typed/autoscaling/v2beta1","kubernetes/typed/batch/v1","kubernetes/typed/batch/v1beta1","kubernetes/typed/batch/v2alpha1","kubernetes/typed/certificates/v1beta1","kubernetes/typed/core/v1","kubernetes/typed/extensions/v1beta1","kubernetes/typed/networking/v1","kubernetes/typed/policy/v1beta1","kubernetes/typed/rbac/v1","kubernetes/typed/rbac/v1alpha1","kubernetes/typed/rbac/v1beta1","kubernetes/typed/scheduling/v1alpha1","kubernetes/typed/settings/v1alpha1","kubernetes/typed/storage/v1","kubernetes/typed/storage/v1beta1","pkg/version","plugin/pkg/client/auth/azure","plugin/pkg/client/auth/gcp","plugin/pkg/client/auth/oidc","rest","rest/watch","third_party/forked/golang/template","tools/auth","tools/clientcmd","tools/clientcmd/api","tools/clientcmd/api/latest","tools/clientcmd/api/v1","tools/metrics","tools/reference","tools/remotecommand","transport","transport/spdy","util/cert","util/exec","util/flowcontrol","util/homedir","util/integer","util/jsonpath"]
   revision = "2ae454230481a7cb5544325e12ad7658ecccd19b"
   version = "v5.0.1"
 
@@ -334,6 +333,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "bab49ec543d6ffe6f5ba9684a26faa6fb4e93186cd1f05bac99ef68e23a1ddf9"
+  inputs-digest = "1fea28576799db40816c01b56094967d3c4c9379dea54070904dc0407f9ce7c4"
   solver-name = "gps-cdcl"
   solver-version = 1
