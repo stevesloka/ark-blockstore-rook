@@ -8,9 +8,8 @@
   name = "github.com/hashicorp/go-plugin"
 
 [[constraint]]
-  branch = "support-custom-snapshots"
   name = "github.com/heptio/ark"
-  source = "https://github.com/ncdc/ark.git"
+  version = "0.6.0"
 
 [[constraint]]
   name = "github.com/sirupsen/logrus"
