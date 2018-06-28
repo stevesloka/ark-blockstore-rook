@@ -32,7 +32,10 @@ import (
 )
 
 const (
-	rookRestAPIURL = "rookRestAPIURL"
+	rookRestAPIURLConfigKey = "rookRestAPIURL"
+	bucketConfigKey         = "bucket"
+	regionConfigKey         = "region"
+	prefixConfigKey         = "prefix"
 )
 
 func main() {
@@ -46,34 +49,73 @@ func main() {
 }
 
 type rook struct {
+	log    logrus.FieldLogger
 	apiUrl string
+	bucket string
+	region string
+	prefix string
 }
 
 func NewBlockStore() cloudprovider.BlockStore {
-	return &rook{}
+	logger := arkplugin.NewLogger()
+	logger.Info("Creating Ark Rook BlockStore Plugin.")
+
+	return &rook{log: logger}
 }
 
 func (b *rook) Init(config map[string]string) error {
-	api := config[rookRestAPIURL]
+	log := b.log
+
+	log.Info("Initialising Ark Rook BlockStore Plugin.")
+
+	api := config[rookRestAPIURLConfigKey]
 	if api == "" {
-		return errors.Errorf("missing %s in rook configuration", rookRestAPIURL)
+		return errors.Errorf("missing %s in rook configuration", rookRestAPIURLConfigKey)
 	}
 
 	b.apiUrl = api
-	logrus.Infof("Api URL passed:", b.apiUrl)
+	log.Infof("Api URL passed: %s", b.apiUrl)
+
+	bucket := config[bucketConfigKey]
+	if bucket == "" {
+		return errors.Errorf("missing %s in rook configuration", bucketConfigKey)
+	}
+
+	b.bucket = bucket
+	log.Infof("Bucket passed: %s", b.bucket)
+
+	region := config[regionConfigKey]
+	if region == "" {
+		return errors.Errorf("missing %s in rook configuration", regionConfigKey)
+	}
+
+	b.region = region
+	log.Infof("S3 Region passed: %s", b.region)
+
+	prefix := config[prefixConfigKey]
+	b.prefix = prefix
+	log.Infof("Prefix set to: %s", b.prefix)
 
 	return nil
 }
 
 func (b *rook) CreateVolumeFromSnapshot(snapshotID, volumeType, volumeAZ string, iops *int64) (volumeID string, err error) {
+	log := b.log.WithFields(logrus.Fields{
+		"action": "CreateVolumeFromSnapshot",
+	})
+	log.Infof("snapshotID:", snapshotID)
 
-	pool, image := b.getPoolImageFromVolumeID(snapshotID)
+	pool, image, id := b.getPoolImageIDFromVolumeID(snapshotID)
 
-	httpURL := fmt.Sprintf("%s/block/%s/%s/%s", b.apiUrl, pool, snapshotID, image)
+	httpURL := fmt.Sprintf("%s/block/%s/%s/%s/%s/%s/%s", b.apiUrl, b.region, b.bucket, b.prefix, id, pool, image)
 
 	// Make an http request to rookapi
 	client := &http.Client{}
 	req, err := http.NewRequest("POST", httpURL, nil)
+	if err != nil {
+		return "", err
+	}
+
 	resp, err := client.Do(req)
 
 	// Process response
@@ -98,15 +140,27 @@ func (b *rook) ListSnapshots(tagFilters map[string]string) ([]string, error) {
 }
 
 func (b *rook) CreateSnapshot(volumeID, volumeAZ string, tags map[string]string) (snapshotID string, err error) {
+	log := b.log.WithFields(logrus.Fields{
+		"action": "CreateVolumeFromSnapshot",
+	})
+	log.Infof("volumeID: %s", volumeID)
 
 	pool, image := b.getPoolImageFromVolumeID(volumeID)
-	snapID := fmt.Sprintf("%s||%s", volumeID, uuid.NewV4())
+	id := uuid.NewV4()
+	snapID := fmt.Sprintf("%s||%s", volumeID, id)
+	log.Infof("pool: %s; image: %s; id: id", pool, image, id)
 
-	httpURL := fmt.Sprintf("%s/snapshot/%s/%s/%s", b.apiUrl, pool, snapID, image)
+	httpURL := fmt.Sprintf("%s/snapshot/%s/%s/%s/%s/%s/%s", b.apiUrl, b.region, b.bucket, b.prefix, id, pool, image)
+	log.Infof("Calling rook-rest-api: %s", httpURL)
 
 	// Make an http request to rookapi
 	client := &http.Client{}
 	req, err := http.NewRequest("POST", httpURL, nil)
+	if err != nil {
+		// log.Errorf("Error with request: %s - [%v]", httpURL, err)
+		return "", err
+	}
+
 	resp, err := client.Do(req)
 
 	// Process response
@@ -119,14 +173,23 @@ func (b *rook) CreateSnapshot(volumeID, volumeAZ string, tags map[string]string)
 }
 
 func (b *rook) DeleteSnapshot(snapshotID string) error {
+	log := b.log.WithFields(logrus.Fields{
+		"action": "DeleteSnapshot",
+	})
+	log.Infof("snapshotID: %s", snapshotID)
 
-	pool, _ := b.getPoolImageFromVolumeID(snapshotID)
+	pool, image, id := b.getPoolImageIDFromVolumeID(snapshotID)
+	log.Infof("pool: %s; image: %s; id: %s", pool, image, id)
 
-	httpURL := fmt.Sprintf("%s/snapshot/%s/%s", b.apiUrl, pool, snapshotID)
+	httpURL := fmt.Sprintf("%s/snapshot/%s/%s/%s/%s/%s", b.apiUrl, b.region, b.bucket, b.prefix, id, pool)
 
 	// Make an http request to rookapi
 	client := &http.Client{}
 	req, err := http.NewRequest("DELETE", httpURL, nil)
+	if err != nil {
+		return err
+	}
+
 	resp, err := client.Do(req)
 
 	// Process response
@@ -185,4 +248,9 @@ func (b *rook) getPoolImageFromUnstructured(pv runtime.Unstructured) (string, st
 func (b *rook) getPoolImageFromVolumeID(volumeID string) (string, string) {
 	splits := strings.Split(volumeID, "||")
 	return splits[0], splits[1]
+}
+
+func (b *rook) getPoolImageIDFromVolumeID(volumeID string) (string, string, string) {
+	splits := strings.Split(volumeID, "||")
+	return splits[0], splits[1], splits[2]
 }
